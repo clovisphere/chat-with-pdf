@@ -13,7 +13,6 @@ pypdf = "*"
 chromadb = "*"
 streamlit-extras = "*"
 streamlit-chat = "*"
-azure-core = "*"
 
 [dev-packages]
 
