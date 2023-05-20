@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: .devops/Dockerfile
+    container_name: chatbot
+    expose:
+      - "8501"

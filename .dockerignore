@@ -1,0 +1,13 @@
+# Git
+.git
+.gitignore
+# unused .env files
+.env
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+# Virtual environment
+.env/
+# PyCharm
+.idea
