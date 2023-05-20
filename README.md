@@ -1,9 +1,9 @@
 # Chat with PDF (or any other document)
 
-![chatbot dashboard](docs/chat-bot.png)
+![pdf chat-bot (preview)](docs/chat-bot.png)
 
  This is still very much a work in progress, meaning it ain't production-ready 
- (and to be fair to myself, it was a good excuse to try ChatGPT 😃).
+ (and to be fair to myself, it was a good excuse to try out ChatGPT 😃).
  
 ## Usage
 Make a copy of [.env.dev](.env.dev) file named `.env`, 
@@ -11,7 +11,7 @@ and make sure all the **ENVIRONMENT_VARIABLES** are set - of importance,
 the **OPENAI_API_KEY** must be present and set.
 
 ```bash
-$ cp .env.dev .env  # make a copy of .env.dev called .env
+cp .env.dev .env  # make a copy of .env.dev called .env
 ```
 
 ### Development (for now 😂)
@@ -29,7 +29,7 @@ Make sure you have both [docker](https://www.docker.com/) and
 [docker-compose](https://docs.docker.com/compose/) installed locally.
 
 ```bash
-$ docker-compose -f .devops/docker-compose.yml up --build
+docker-compose -f .devops/docker-compose.yml up --build
 ````
 
 Without [Docker](https://www.docker.com/):
