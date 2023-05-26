@@ -10,7 +10,7 @@ class Config:
     $\\left(\\Large{Chat with PDF 📃}\\right)$
     """
     ALLOW_MULTIPLE_FILES = False
-    ALLOWED_FILE_EXTENSION = 'pdf, docx, txt'
+    ALLOWED_FILE_EXTENSION = 'pdf'
     EXCERPT_LENGTH = 300
     VERTICAL_SPACING = 2
     NUMBER_OF_RELEVANT_CHUNKS = 2

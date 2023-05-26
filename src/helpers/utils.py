@@ -47,7 +47,7 @@ def transform_chunks_into_embeddings(text: list[Document], k: int) -> VectorStor
 
 def get_file_path(file) -> str:
     """Obtain the file full path."""
-    with NamedTemporaryFile(dir='.', suffix='.pdf', delete=False) as f:
+    with NamedTemporaryFile(dir='/tmp/', suffix='.pdf', delete=False) as f:
         f.write(file.getbuffer())
         return f.name
 

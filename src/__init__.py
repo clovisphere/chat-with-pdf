@@ -1,8 +1,8 @@
 import base64
-import os
 import streamlit as st
 from streamlit_chat import message
 from streamlit_extras.colored_header import colored_header
+
 from config.default import config
 from src.helpers.utils import get_text, setup, get_file_path, generate_response
 
@@ -20,6 +20,8 @@ def create_app(config_name):
         st.session_state.generated = []
     if 'past' not in st.session_state:
         st.session_state.past = []
+    if 'source' not in st.session_state:
+        st.session_state.source = []
 
     """
     *---------------------------------------*-----------------------------------------------------*
@@ -36,6 +38,9 @@ def create_app(config_name):
             pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width={cf.WIDTH} ' \
                           f'height={cf.HEIGHT} type="application/pdf"></iframe>'
             st.markdown(pdf_display, unsafe_allow_html=True)
+
+    def excerpt(text, n=cf.EXCERPT_LENGTH):
+        return text[:n] + '...' if len(text) > n else text
     """
     *---------------------------------------*-----------------------------------------------------*
     *---------------------------------------*-----------------------------------------------------*
@@ -60,11 +65,23 @@ def create_app(config_name):
         with response_container:
             if st.session_state.user_input:
                 response = generate_response(st.session_state.user_input, cf.CHAIN_TYPE, s)
+                if response['source_documents']:
+                    all_refs = ''
+                    for doc in response['source_documents']:
+                        content = excerpt(doc.page_content)
+                        page = doc.metadata.get('page')
+                        ref = f"""
+                        *{content}*
+                        \n☝🏽#{page} 📖\n
+                        """
+                        all_refs += ref
+                    st.session_state.source.append(all_refs)
                 st.session_state.past.append(st.session_state.user_input)
                 st.session_state.generated.append(response['result'])
             if st.session_state.generated:
                 for i in range(len(st.session_state.generated)):
                     message(st.session_state.past[i], is_user=True, key=str(i) + '_user', avatar_style='micah')
                     message(st.session_state.generated[i], key=str(i))
-        # remove/delete the file
-        os.remove(fp)
+                    if st.session_state.source:
+                        with st.expander(':blue[See references]'):
+                            st.markdown(st.session_state.source[i], unsafe_allow_html=True)
