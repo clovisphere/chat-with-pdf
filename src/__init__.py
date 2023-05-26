@@ -2,7 +2,6 @@ import base64
 import streamlit as st
 from streamlit_chat import message
 from streamlit_extras.colored_header import colored_header
-
 from config.default import config
 from src.helpers.utils import get_text, setup, get_file_path, generate_response
 
