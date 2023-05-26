@@ -54,4 +54,5 @@ Clovis Mugaruka
 
 ## License
 
-Copyright ©️ 2023, [Clovis Mugaruka](https://clovisphere.com).
+Copyright ©️ 2023, [Clovis Mugaruka](https://clovisphere.com).\
+Released under the [MIT License](LICENSE).
