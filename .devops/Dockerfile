@@ -18,7 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc && rm -rf /
 RUN apt-get update && apt-get install wget ca-certificates -y
 RUN apt-get update && apt-get install -y gnupg2
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+#RUN bash -c '. /etc/os-release; echo $VERSION_CODENAME'
+RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 RUN apt-get update && apt-get install postgresql postgresql-contrib -y
 # Install python dependencies in /.venv
 #COPY Pipfile .
