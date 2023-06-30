@@ -14,6 +14,12 @@ WORKDIR /app
 # Update apt-get and install gcc
 RUN apt-get update && apt-get install -y --no-install-recommends gcc && rm -rf /var/lib/apt/lists/*
 
+# install pg_config
+RUN apt-get update && apt-get install wget ca-certificates -y
+RUN apt-get update && apt-get install -y gnupg2
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+RUN apt-get update && apt-get install postgresql postgresql-contrib -y
 # Install python dependencies in /.venv
 #COPY Pipfile .
 #COPY Pipfile.lock .
