@@ -22,6 +22,8 @@ class Config:
     HEIGHT = "60"
 
 
+
+
 class DevelopmentConfig(Config):
     pass
 

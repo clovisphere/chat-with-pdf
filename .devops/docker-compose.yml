@@ -8,3 +8,5 @@ services:
     container_name: chatbot
     expose:
       - "8501"
+    ports:
+      - "8501:8501"

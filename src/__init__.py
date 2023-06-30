@@ -5,13 +5,17 @@ from streamlit_extras.colored_header import colored_header
 from config.default import config
 from src.helpers.utils import get_text, setup, get_file_path, generate_response
 
-
+open_api_token_global = ""
 def create_app(config_name):
     """Create a streamlit app"""
     cf = config[config_name]
     st.set_page_config(page_title='haidongGPT from pdf',
                        page_icon='🤖', layout='centered', initial_sidebar_state='auto')
     st.header(cf.TITLE)
+
+    open_api_token_global = st.text_input('your openai token', 'sk-asdfasdfasdf')
+    st.write('The current movie title is', open_api_token_global)
+
     # we need a way to remember the chat history
     if 'user_input' not in st.session_state:
         st.session_state.user_input = ''
@@ -59,11 +63,11 @@ def create_app(config_name):
         colored_header(label='', description='', color_name='light-blue-70')
         response_container = st.container()
         # processing start here...
-        s = setup(file=fp, number_of_relevant_chunk=cf.NUMBER_OF_RELEVANT_CHUNKS)
+        s = setup(file=fp, number_of_relevant_chunk=cf.NUMBER_OF_RELEVANT_CHUNKS, open_ai_token=open_api_token_global)
         st.text_input('🤖 666 👋🏾, Ask me anything about the uploaded pdf', key='widget', on_change=submit)
         with response_container:
             if st.session_state.user_input:
-                response = generate_response(st.session_state.user_input, cf.CHAIN_TYPE, s)
+                response = generate_response(st.session_state.user_input, cf.CHAIN_TYPE, s, open_ai_token = open_api_token_global)
                 if response['source_documents']:
                     all_refs = ''
                     for doc in response['source_documents']:

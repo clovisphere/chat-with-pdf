@@ -33,7 +33,7 @@ def get_text():
     return input_text
 
 
-def generate_response(query: str, chain_type: str, retriever: VectorStoreRetriever) -> dict[str, Any]:
+def generate_response(query: str, chain_type: str, retriever: VectorStoreRetriever, open_ai_token) -> dict[str, Any]:
 
     if query == "who are you":
         result_content = """I am HD C """
@@ -49,7 +49,7 @@ def generate_response(query: str, chain_type: str, retriever: VectorStoreRetriev
         return result
     else:
         qa = RetrievalQA.from_chain_type(
-            llm=OpenAI(openai_api_key = my_openai_api_key),
+            llm=OpenAI(openai_api_key = open_ai_token),
             chain_type=chain_type,
             retriever=retriever,
             return_source_documents=True
@@ -71,9 +71,9 @@ def transform_document_into_chunks(document: list[Document]) -> list[Document]:
 
 
 
-def transform_chunks_into_embeddings(text: list[Document], k: int) -> VectorStoreRetriever:
+def transform_chunks_into_embeddings(text: list[Document], k: int , open_ai_token) -> VectorStoreRetriever:
     """Transform chunks into embeddings"""
-    embeddings = OpenAIEmbeddings(openai_api_key = my_openai_api_key)
+    embeddings = OpenAIEmbeddings(openai_api_key = open_ai_token)
     db = AnalyticDB.from_documents(text, embeddings, connection_string=CONNECTION_STRING)
     return db.as_retriever(search_type='similarity', search_kwargs={'k': k})
 
@@ -84,11 +84,11 @@ def get_file_path(file) -> str:
         return f.name
 
 
-def setup(file: str, number_of_relevant_chunk: int) -> VectorStoreRetriever:
+def setup(file: str, number_of_relevant_chunk: int, open_ai_token: str,) -> VectorStoreRetriever:
     # load the document
     loader = PyPDFLoader(file)
     document = loader.load()
     # transform the document into chunks
     chunks = transform_document_into_chunks(document)
     # transform the chunks into embeddings
-    return transform_chunks_into_embeddings(chunks, number_of_relevant_chunk)
+    return transform_chunks_into_embeddings(chunks, number_of_relevant_chunk ,open_ai_token)
