@@ -5,14 +5,14 @@ name = "pypi"
 
 [packages]
 python-dotenv = "1.0.0"
-streamlit = "1.22.0"
-langchain = "0.0.174"
-openai = "0.27.7"
+streamlit = "1.24.0"
+langchain = "0.0.216"
+openai = "0.27.8"
 tiktoken = "0.4.0"
-pypdf = "3.8.1"
-chromadb = "0.3.23"
+pypdf = "3.11.0"
+chromadb = "0.3.26"
 streamlit-extras = "0.2.7"
-streamlit-chat = "0.0.2.2"
+streamlit-chat = "0.1.1"
 
 [dev-packages]
 

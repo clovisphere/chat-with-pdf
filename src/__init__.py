@@ -9,7 +9,7 @@ from src.helpers.utils import get_text, setup, get_file_path, generate_response
 def create_app(config_name):
     """Create a streamlit app"""
     cf = config[config_name]
-    st.set_page_config(page_title='📄ChatBot',
+    st.set_page_config(page_title='haidongGPT from pdf',
                        page_icon='🤖', layout='centered', initial_sidebar_state='auto')
     st.header(cf.TITLE)
     # we need a way to remember the chat history
@@ -60,7 +60,7 @@ def create_app(config_name):
         response_container = st.container()
         # processing start here...
         s = setup(file=fp, number_of_relevant_chunk=cf.NUMBER_OF_RELEVANT_CHUNKS)
-        st.text_input('🤖 Howdy 👋🏾, Ask me anything about the uploaded pdf', key='widget', on_change=submit)
+        st.text_input('🤖 666 👋🏾, Ask me anything about the uploaded pdf', key='widget', on_change=submit)
         with response_container:
             if st.session_state.user_input:
                 response = generate_response(st.session_state.user_input, cf.CHAIN_TYPE, s)

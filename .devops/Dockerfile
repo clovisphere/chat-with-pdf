@@ -15,12 +15,14 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends gcc && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies in /.venv
-COPY Pipfile .
-COPY Pipfile.lock .
+#COPY Pipfile .
+#COPY Pipfile.lock .
+COPY requirments.txt .
 
 # Install pipenv and compilation dependencies
-RUN pip install -U setuptools pip pipenv
-RUN pipenv install --system --deploy
+RUN #pip install -U setuptools pip pipenv
+RUN #pipenv install --system --deploy
+RUN pip install -r requirments.txt
 
 # Copy project
 COPY .. .

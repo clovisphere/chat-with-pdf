@@ -1,5 +1,6 @@
 # Chat with PDF (or any other document)
-
+# make sure your ADB is fastann enabled, CREATE EXTENSION IF NOT EXISTS fastann;
+# if not as adbpf pdsa
 ![pdf chat-bot (preview)](docs/chat-bot.png)
 
  This is still very much a work in progress, meaning it ain't production-ready 

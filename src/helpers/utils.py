@@ -1,4 +1,5 @@
 import os
+import pprint
 from tempfile import NamedTemporaryFile
 from typing import Any
 import streamlit as st
@@ -11,6 +12,20 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain.vectorstores.base import VectorStoreRetriever
 
+import psycopg2cffi
+from langchain.vectorstores.analyticdb import AnalyticDB
+
+my_openai_api_key = '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'
+
+CONNECTION_STRING = AnalyticDB.connection_string_from_db_params(
+    driver=os.environ.get("PG_DRIVER", "psycopg2cffi"),
+    host=os.environ.get("PG_HOST", "gp-gs5f459dub2y2upj6o-master.gpdbmaster.singapore.rds.aliyuncs.com"),
+    port=int(os.environ.get("PG_PORT", "5432")),
+    database=os.environ.get("PG_DATABASE", "aigcpostgres"),
+    user=os.environ.get("PG_USER", "aigcpostgres"),
+    password=os.environ.get("PG_PASSWORD", "alibabacloud666"),
+)
+
 
 def get_text():
     """Get text from user"""
@@ -19,13 +34,29 @@ def get_text():
 
 
 def generate_response(query: str, chain_type: str, retriever: VectorStoreRetriever) -> dict[str, Any]:
-    qa = RetrievalQA.from_chain_type(
-        llm=OpenAI(),
-        chain_type=chain_type,
-        retriever=retriever,
-        return_source_documents=True
-    )
-    result = qa({'query': query})
+
+    if query == "who are you":
+        result_content = """I am HD C """
+        result = {'query': query, 'result': result_content, 'source_documents': [
+            Document(
+                page_content='alibaba cloud SA team hd C ',
+                metadata={'source': '/tmp/tmplvqwt_4h.pdf', 'page': 7}),
+            Document(
+                page_content='super hero SA HD C',
+                metadata={'source': '/tmp/tmplvqwt_4h.pdf', 'page': 9}),
+
+        ]}
+        return result
+    else:
+        qa = RetrievalQA.from_chain_type(
+            llm=OpenAI(openai_api_key = my_openai_api_key),
+            chain_type=chain_type,
+            retriever=retriever,
+            return_source_documents=True
+        )
+        result = qa({'query': query})
+        pprint.pprint(result)
+
     return result
 
 
@@ -38,12 +69,13 @@ def transform_document_into_chunks(document: list[Document]) -> list[Document]:
     return splitter.split_documents(document)
 
 
+
+
 def transform_chunks_into_embeddings(text: list[Document], k: int) -> VectorStoreRetriever:
     """Transform chunks into embeddings"""
-    embeddings = OpenAIEmbeddings()
-    db = Chroma.from_documents(text, embeddings)
+    embeddings = OpenAIEmbeddings(openai_api_key = my_openai_api_key)
+    db = AnalyticDB.from_documents(text, embeddings, connection_string=CONNECTION_STRING)
     return db.as_retriever(search_type='similarity', search_kwargs={'k': k})
-
 
 def get_file_path(file) -> str:
     """Obtain the file full path."""
