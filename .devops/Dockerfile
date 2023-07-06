@@ -28,8 +28,13 @@ COPY requirments.txt .
 #RUN pipenv install --system --deploy
 RUN pip install -r requirments.txt
 
-# Copy project
+# Copy project on mac
+#COPY .. .
+
+# on linux machine access control do not allow copy outside path
 COPY . .
+
+
 
 # Rename .env.docker file to .env
 RUN mv .env.dev .env

@@ -13,8 +13,21 @@ def create_app(config_name):
                        page_icon='🤖', layout='centered', initial_sidebar_state='auto')
     st.header(cf.TITLE)
 
-    open_api_token_global = st.text_input('your openai token', 'sk-asdfasdfasdf')
-    st.write('The current movie title is', open_api_token_global)
+    open_api_token_global = st.text_input('your openai token', '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')
+    st.write('The current chatgpt api token is', open_api_token_global)
+
+    #  adbpg_user_input, adbpg_pwd_input
+
+    adbpg_host_input_global = st.text_input('your adbpg_host', 'gp-gs5inp2dl746742muo-master.gpdbmaster.singapore.rds.aliyuncs.com')
+    st.write('The current adbpg_host_input', adbpg_host_input_global)
+    adbpg_port_input_global = st.text_input('your adbpg_port', '5432')
+    st.write('The current adbpg_port is', adbpg_port_input_global)
+    adbpg_database_input_global = st.text_input('your adbpg_database', 'aigcpostgres')
+    st.write('The current adbpg_database is', adbpg_database_input_global)
+    adbpg_user_input_global = st.text_input('your adbpg_user', 'aigcpostgres')
+    st.write('The current adbpg_user is', adbpg_user_input_global)
+    adbpg_pwd_input_global = st.text_input('your adbpg_pwd', 'alibabacloud666')
+    st.write('The current adbpg_pwd is', adbpg_pwd_input_global)
 
     # we need a way to remember the chat history
     if 'user_input' not in st.session_state:
@@ -63,7 +76,9 @@ def create_app(config_name):
         colored_header(label='', description='', color_name='light-blue-70')
         response_container = st.container()
         # processing start here...
-        s = setup(file=fp, number_of_relevant_chunk=cf.NUMBER_OF_RELEVANT_CHUNKS, open_ai_token=open_api_token_global)
+        s = setup(file=fp, number_of_relevant_chunk=cf.NUMBER_OF_RELEVANT_CHUNKS, open_ai_token=open_api_token_global,
+                  adbpg_host_input=adbpg_host_input_global, adbpg_port_input = adbpg_port_input_global,
+                  adbpg_database_input=adbpg_database_input_global, adbpg_user_input=adbpg_user_input_global, adbpg_pwd_input=adbpg_pwd_input_global)
         st.text_input('🤖 666 👋🏾, Ask me anything about the uploaded pdf', key='widget', on_change=submit)
         with response_container:
             if st.session_state.user_input:

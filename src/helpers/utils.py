@@ -17,14 +17,8 @@ from langchain.vectorstores.analyticdb import AnalyticDB
 
 my_openai_api_key = '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'
 
-CONNECTION_STRING = AnalyticDB.connection_string_from_db_params(
-    driver=os.environ.get("PG_DRIVER", "psycopg2cffi"),
-    host=os.environ.get("PG_HOST", "gp-gs5f459dub2y2upj6o-master.gpdbmaster.singapore.rds.aliyuncs.com"),
-    port=int(os.environ.get("PG_PORT", "5432")),
-    database=os.environ.get("PG_DATABASE", "aigcpostgres"),
-    user=os.environ.get("PG_USER", "aigcpostgres"),
-    password=os.environ.get("PG_PASSWORD", "alibabacloud666"),
-)
+
+
 
 
 def get_text():
@@ -71,8 +65,17 @@ def transform_document_into_chunks(document: list[Document]) -> list[Document]:
 
 
 
-def transform_chunks_into_embeddings(text: list[Document], k: int , open_ai_token) -> VectorStoreRetriever:
+def transform_chunks_into_embeddings(text: list[Document], k: int , open_ai_token , adbpg_host_input, adbpg_port_input, adbpg_database_input, adbpg_user_input, adbpg_pwd_input) -> VectorStoreRetriever:
     """Transform chunks into embeddings"""
+    CONNECTION_STRING = AnalyticDB.connection_string_from_db_params(
+        driver=os.environ.get("PG_DRIVER", "psycopg2cffi"),
+        host=os.environ.get("PG_HOST", adbpg_host_input),
+        port=int(os.environ.get("PG_PORT", adbpg_port_input)),
+        database=os.environ.get("PG_DATABASE", adbpg_database_input),
+        user=os.environ.get("PG_USER", adbpg_user_input),
+        password=os.environ.get("PG_PASSWORD", adbpg_pwd_input),
+    )
+
     embeddings = OpenAIEmbeddings(openai_api_key = open_ai_token)
     db = AnalyticDB.from_documents(text, embeddings, connection_string=CONNECTION_STRING)
     return db.as_retriever(search_type='similarity', search_kwargs={'k': k})
@@ -84,11 +87,11 @@ def get_file_path(file) -> str:
         return f.name
 
 
-def setup(file: str, number_of_relevant_chunk: int, open_ai_token: str,) -> VectorStoreRetriever:
+def setup(file: str, number_of_relevant_chunk: int, open_ai_token: str , adbpg_host_input, adbpg_port_input, adbpg_database_input, adbpg_user_input, adbpg_pwd_input) -> VectorStoreRetriever:
     # load the document
     loader = PyPDFLoader(file)
     document = loader.load()
     # transform the document into chunks
     chunks = transform_document_into_chunks(document)
     # transform the chunks into embeddings
-    return transform_chunks_into_embeddings(chunks, number_of_relevant_chunk ,open_ai_token)
+    return transform_chunks_into_embeddings(chunks, number_of_relevant_chunk ,open_ai_token,adbpg_host_input, adbpg_port_input, adbpg_database_input, adbpg_user_input, adbpg_pwd_input)
