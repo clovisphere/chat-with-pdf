@@ -31,7 +31,7 @@ username: aigcpostgres ,password: alibabacloud666
 ### create a database with name: aigcpostgres
 ![img_18.png](docs/img_18.png)
 ![img_19.png](docs/img_19.png)
-
+For more information about DMS, please refer to [here](https://www.alibabacloud.com/help/en/data-management-service/latest/log-on-to-a-database).
 ### add whitelist ip to 0.0.0.0/0
 ![img_20.png](docs/img_20.png)
 ![img_21.png](docs/img_21.png)
