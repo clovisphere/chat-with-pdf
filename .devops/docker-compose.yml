@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 
 services:
   app:
@@ -8,3 +8,5 @@ services:
     container_name: chatbot
     expose:
       - "8501"
+    ports:
+      - "8501:8501"
