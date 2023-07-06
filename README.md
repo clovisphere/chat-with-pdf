@@ -1,59 +1,65 @@
-# Chat with PDF (or any other document)
-# make sure your ADB is fastann enabled, CREATE EXTENSION IF NOT EXISTS fastann;
-# if not as adbpf pdsa
-![pdf chat-bot (preview)](docs/chat-bot.png)
+# preview demo video
 
- This is still very much a work in progress, meaning it ain't production-ready 
- (and to be fair to myself, it was a good excuse to try out ChatGPT 😃).
- 
-## Usage
-Make a copy of [.env.dev](.env.dev) file named `.env`, 
-and make sure all the **ENVIRONMENT_VARIABLES** are set - of importance, 
-the **OPENAI_API_KEY** must be present and set.
+![img.png](docs/img.png)
+![img_1.png](docs/img_1.png)
+# Step 1 Cloud resources
+## 1.1 create ecs with security group 8501 open
+![img_2.png](docs/img_2.png)
+![img_3.png](docs/img_3.png)
 
-```bash
-cp .env.dev .env  # make a copy of .env.dev called .env
-```
+### need to create/ select if you have vpc setup
+![img_4.png](docs/img_4.png)
+### create security group
+![img_5.png](docs/img_5.png)
+![img_6.png](docs/img_6.png)
+![img_7.png](docs/img_7.png)
+![img_8.png](docs/img_8.png)
+![img_9.png](docs/img_9.png)
+![img_10.png](docs/img_10.png)
+## 1.2 create adbpg with fastann enabled
+![img_11.png](docs/img_11.png)
+![img_12.png](docs/img_12.png)=
+### this will take a around 10-15 mins, 
+### get the public access endpoint:
+![img_14.png](docs/img_14.png)
+![img_15.png](docs/img_15.png)
+### create admin account
+![img_16.png](docs/img_16.png)
+eg: 
+username: aigcpostgres ,password: alibabacloud666
+![img_17.png](docs/img_17.png)
+### create a database with name: aigcpostgres
+![img_18.png](docs/img_18.png)
+![img_19.png](docs/img_19.png)
 
-### Development (for now 😂)
+### add whitelist ip to 0.0.0.0/0
+![img_20.png](docs/img_20.png)
+![img_21.png](docs/img_21.png)
 
-Prerequisites:
+Step 2 env init
+![img_22.png](docs/img_22.png)
 
-- [Python](https://www.python.org/downloads/release/python-3112/)
-- [Pipenv](https://pipenv.pypa.io/en/latest/)
-- [Git](https://git-scm.com/)
-- Obtain an [OpenAI API Key](https://platform.openai.com/account/api-keys)
+```apt update && apt install git -y && apt install unzip -y && apt install docker-compose -y && apt install postgresql -y```
+![img_23.png](docs/img_23.png)
 
-With [Docker](https://www.docker.com/):
+Step 3 install packages
+```git clone https://github.com/daviddhc20120601/chat-with-pdf.git && cd chat-with-pdf/```
+![img_24.png](docs/img_24.png)
 
-Make sure you have both [docker](https://www.docker.com/) and
-[docker-compose](https://docs.docker.com/compose/) installed locally.
+Step 4 run the docker
+```cp .devops/Dockerfile . && docker build . -t haidonggpt/front:1.0   && docker run -d -p 8501:8501 haidonggpt/front:1.0```
+![img_25.png](docs/img_25.png)
 
-```bash
-docker-compose -f .devops/docker-compose.yml up --build
-````
+Step 5 insert you token and start using
+![img_26.png](docs/img_26.png)
+5.1 chatgpt token:
+5.2 adbpg host name:gp-gs5inp2dl746742muo-master.gpdbmaster.singapore.rds.aliyuncs.com
+![img_27.png](docs/img_27.png)
+5.3 port: 5432
+![img_28.png](docs/img_28.png)
+5.4 database name: aigcpostgres
+![img_29.png](docs/img_29.png)
+5.5 adb pg username: aigcpostgres
 
-Without [Docker](https://www.docker.com/):
-
-```bash
-$ git clone https://github.com/clovisphere/chat-with-pdf.git  # clone the repo
-$ cd chat-with-pdf  # cd into project root
-$ pipenv install # install dependencies
-$ pipenv shell  # activate virtualenv
-$ python -m streamlit run app.py # or streamlit run app.py
-```
-
-If all went well, your app should be available on [http://127.0.0.1:8501](http://127.0.0.1:8501)
-
-
-## Author
-
-Clovis Mugaruka
-
-- [github.com/clovisphere](https://github.com/clovisphere)
-- [twitter/clovisphere](https://twitter.com/clovisphere)
-
-## License
-
-Copyright ©️ 2023, [Clovis Mugaruka](https://clovisphere.com).\
-Released under the [MIT License](LICENSE).
+5.6 adb pg password: alibabacloud666
+step 6 my token and credentials are invalidated, do not try to use it , it is a waste of time
