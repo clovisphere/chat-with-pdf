@@ -43,7 +43,7 @@ def generate_response(query: str, chain_type: str, retriever: VectorStoreRetriev
         return result
     else:
         qa = RetrievalQA.from_chain_type(
-            llm=OpenAI(openai_api_key = open_ai_token),
+            llm=OpenAI(openai_api_key = open_ai_token, model_name="gpt-3.5-turbo-16k"),
             chain_type=chain_type,
             retriever=retriever,
             return_source_documents=True
