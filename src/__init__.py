@@ -4,7 +4,7 @@ from streamlit_chat import message
 from streamlit_extras.colored_header import colored_header
 from config.default import config
 from src.helpers.utils import get_text, setup, get_file_path, generate_response
-
+import os
 open_api_token_global = ""
 def create_app(config_name):
     """Create a streamlit app"""
@@ -17,16 +17,23 @@ def create_app(config_name):
     st.write('The current chatgpt api token is', open_api_token_global)
 
     #  adbpg_user_input, adbpg_pwd_input
+    # # Returns `None` if the key doesn't exist
+    # print(os.environ.get('KEY_THAT_MIGHT_EXIST'))
+    conn_string = os.environ.get('PG_HOST', 'gp-gs5inp2dl746742muo-master.gpdbmaster.singapore.rds.aliyuncs.com')
+    conn_port = os.environ.get('PG_PORT', '5432')
+    adbpg_database = os.environ.get('PG_DATABASE', 'aigcpostgres')
+    adbpg_user = os.environ.get('PG_USER', 'aigcpostgres')
+    adbpg_passwd = os.environ.get('PG_PASSWORD', 'alibabacloud666')
 
-    adbpg_host_input_global = st.text_input('your adbpg_host', 'gp-gs5inp2dl746742muo-master.gpdbmaster.singapore.rds.aliyuncs.com')
+    adbpg_host_input_global = st.text_input('your adbpg_host', conn_string)
     st.write('The current adbpg_host_input', adbpg_host_input_global)
-    adbpg_port_input_global = st.text_input('your adbpg_port', '5432')
+    adbpg_port_input_global = st.text_input('your adbpg_port', conn_port)
     st.write('The current adbpg_port is', adbpg_port_input_global)
-    adbpg_database_input_global = st.text_input('your adbpg_database', 'aigcpostgres')
+    adbpg_database_input_global = st.text_input('your adbpg_database', adbpg_database)
     st.write('The current adbpg_database is', adbpg_database_input_global)
-    adbpg_user_input_global = st.text_input('your adbpg_user', 'aigcpostgres')
+    adbpg_user_input_global = st.text_input('your adbpg_user', adbpg_user)
     st.write('The current adbpg_user is', adbpg_user_input_global)
-    adbpg_pwd_input_global = st.text_input('your adbpg_pwd', 'alibabacloud666')
+    adbpg_pwd_input_global = st.text_input('your adbpg_pwd', adbpg_passwd)
     st.write('The current adbpg_pwd is', adbpg_pwd_input_global)
 
     # we need a way to remember the chat history
