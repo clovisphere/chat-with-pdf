@@ -1,0 +1,639 @@
+{
+  "ROSTemplateFormatVersion": "2015-09-01",
+  "Description": {
+    "en": "ECS chat with pdf",
+    "zh-cn": "ECS chat with pdf"
+  },
+  "Parameters": {
+    "SourceCidrIp": {
+      "Type": "String",
+      "Label": {
+        "en": "IngreesIP",
+        "zh-cn": "白名单设置",
+        "Default": "127.0.0.1/24",
+        "AssociationProperty": "ALIYUN::ECS::EcsSecurityGroup::SecurityGroupIngress::SourceCidrIp"
+      },
+      "Description": {
+        "en": "",
+        "zh-cn": "白名单默认值为127.0.0.1/24, 如果希望全部放开可设置为0.0.0.0/0(不建议),建议获取本机公网出口地址设置进去(可通过浏览器访问ifconfig.me、myip.ipip.net获取)"
+      }
+    },
+    "PayType": {
+      "Type": "String",
+      "Label": {
+        "en": "ECS Instance Charge Type",
+        "zh-cn": "付费类型"
+      },
+      "Default": "PostPaid",
+      "AllowedValues": [
+        "PostPaid",
+        "PrePaid"
+      ],
+      "AssociationProperty": "ChargeType",
+      "AssociationPropertyMetadata": {
+        "LocaleKey": "InstanceChargeType"
+      }
+    },
+    "PayPeriodUnit": {
+      "Type": "String",
+      "Label": {
+        "en": "Pay Period Unit",
+        "zh-cn": "购买资源时长周期"
+      },
+      "Default": "Month",
+      "AllowedValues": [
+        "Month",
+        "Year"
+      ],
+      "AssociationProperty": "PayPeriodUnit",
+      "AssociationPropertyMetadata": {
+        "Visible": {
+          "Condition": {
+            "Fn::Not": {
+              "Fn::Equals": [
+                "${PayType}",
+                "PostPaid"
+              ]
+            }
+          }
+        }
+      }
+    },
+    
+    "PayPeriod": {
+      "Type": "Number",
+      "Description": {
+        "en": "When the resource purchase duration is Month, the value of Period ranges from 1 to 9, 12, 24, 36, 48, or 60. <br><b><font color='red'> When ECS instance types are PrePaid valid </b></font>",
+        "zh-cn": "当购买资源时长为Month时,Period取值:1~9 <br><b><font color='red'>当ECS实例类型为PrePaid有效</b></font>"
+      },
+      "Label": {
+        "en": "Period",
+        "zh-cn": "购买资源时长"
+      },
+      "Default": 1,
+      "AllowedValues": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "AssociationProperty": "PayPeriod",
+      "AssociationPropertyMetadata": {
+        "Visible": {
+          "Condition": {
+            "Fn::Not": {
+              "Fn::Equals": [
+                "${PayType}",
+                "PostPaid"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ZoneId": {
+      "Type": "String",
+      "AssociationProperty": "ALIYUN::ECS::Instance::ZoneId",
+      "Label": {
+        "en": "VSwitch Availability Zone",
+        "zh-cn": "交换机可用区"
+      }
+    },
+    "VpcCidrBlock": {
+      "Type": "String",
+      "Label": {
+        "en": "VPC CIDR IPv4 Block",
+        "zh-cn": "专有网络IPv4网段"
+      },
+      "Description": {
+        "zh-cn": "VPC的ip地址段范围，<br>您可以使用以下的ip地址段或其子网:<br><font color='green'>[10.0.0.0/8]</font><br><font color='green'>[172.16.0.0/12]</font><br><font color='green'>[192.168.0.0/16]</font>",
+        "en": "The ip address range of the VPC in the CidrBlock form; <br>You can use the following ip address ranges and their subnets: <br><font color='green'>[10.0.0.0/8]</font><br><font color='green'>[172.16.0.0/12]</font><br><font color='green'>[192.168.0.0/16]</font>"
+      },
+      "Default": "192.168.0.0/16",
+      "AssociationProperty": "ALIYUN::VPC::VPC::CidrBlock"
+    },
+    "VSwitchCidrBlock": {
+      "Type": "String",
+      "Label": {
+        "en": "VSwitch CIDR Block",
+        "zh-cn": "交换机子网网段"
+      },
+      "Description": {
+        "zh-cn": "必须属于VPC的子网段。",
+        "en": "Must belong to the subnet segment of VPC."
+      },
+      "Default": "192.168.1.0/24",
+      "AssociationProperty": "ALIYUN::VPC::VSwitch::CidrBlock",
+      "AssociationPropertyMetadata": {
+        "VpcCidrBlock": "VpcCidrBlock"
+      }
+    },
+    "EcsInstanceType": {
+      "Type": "String",
+      "Label": {
+        "en": "Instance Type",
+        "zh-cn": "实例类型"
+      },
+      "AssociationProperty": "ALIYUN::ECS::Instance::InstanceType",
+      "AssociationPropertyMetadata": {
+        "ZoneId": "${ZoneId}",
+        "InstanceChargeType": "${InstanceChargeType}"
+      },
+      "AllowedValues": [
+        "ecs.g8a.xlarge",
+        "ecs.g8a.2xlarge",
+        "ecs.c8a.xlarge",
+        "ecs.g7.2xlarge",
+        "ecs.g7.xlarge"
+      ]
+    },
+    "ADBPGInstanceSpec": {
+      "Type": "String",
+      "Label": {
+        "en": "DBInstanceSpec",
+        "zh-cn": "实例规格"
+      },
+      "AssociationProperty": "ALIYUN::GPDB::DBInstance:InstanceSpec",
+      "Default": "4C16G",
+      "AllowedValues": [
+        "4C16G",
+        "8C32G",
+        "16C64G"
+      ]
+    },
+    "ADBPGSegmentStorage": {
+      "Type": "Number",
+      "AssociationProperty": "ALIYUN::ECS::Instance::StorageSize",
+      "Label": {
+        "en": "SegmentStorageSize",
+        "zh-cn": "Segment存储大小(G)"
+      },
+      "Default": 200,
+      "AllowedValues": [
+        200,
+        400,
+        800,
+        1024
+      ]
+    },
+#    "UserName": {
+#      "Type": "String",
+#      "Label": {
+#        "en": "User Name",
+#        "zh-cn": "软件登录名"
+#      },
+#      "Default": "admin"
+#    },
+#    "Password": {
+#      "NoEcho": true,
+#      "Type": "String",
+#      "Description": {
+#        "en": "Server login password, Length 8-30, must contain three(Capital letters, lowercase letters, numbers, ()!@#$%&*-+= Special symbol in)",
+#        "zh-cn": "软件登录密码,长度8-30,必须包含三项（大写字母、小写字母、数字、 ()!@#$%&*-+= 中的特殊符号）"
+#      },
+#      "Label": {
+#        "en": "Software Login Password",
+#        "zh-cn": "软件登录密码"
+#      },
+#      "AllowedPattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[\\!\\@\\#\\$\\%\\&\\*\\(\\)\\+\\-\\=])([A-Za-z])[0-9A-Za-z\\!\\@\\#\\$\\%\\&\\*\\(\\)\\+\\-\\=]{7,29}$",
+#      "ConstraintDescription": {
+#        "en": "Length 8-30, must contain three(Capital letters, lowercase letters, numbers, ()!@#$%&*-+= Special symbol in)",
+#        "zh-cn": "长度8-30,必须包含三项（大写字母、小写字母、数字、 ()!@#$%&*-+= 中的特殊符号）"
+#      },
+#      "MinLength": 8,
+#      "MaxLength": 30
+#    },
+    "InstancePassword": {
+      "NoEcho": true,
+      "Type": "String",
+      "Description": {
+        "en": "Server login password, Length 8-30, must contain three(Capital letters, lowercase letters, numbers, ()`~!@#$%^&*_-+=|{}[]:;'<>,.?/ Special symbol in)",
+        "zh-cn": "服务器登录密码,长度8-30,必须包含三项（大写字母、小写字母、数字、 ()`~!@#$%^&*_-+=|{}[]:;'<>,.?/ 中的特殊符号）"
+      },
+      "AllowedPattern": "[0-9A-Za-z\\_\\-\\&:;'<>,=%`~!@#\\(\\)\\$\\^\\*\\+\\|\\{\\}\\[\\]\\.\\?\\/]+$",
+      "Label": {
+        "en": "Instance Password",
+        "zh-cn": "实例密码"
+      },
+      "ConstraintDescription": {
+        "en": "Length 8-30, must contain three(Capital letters, lowercase letters, numbers, ()`~!@#$%^&*_-+=|{}[]:;'<>,.?/ Special symbol in)",
+        "zh-cn": "长度8-30,必须包含三项（大写字母、小写字母、数字、 ()`~!@#$%^&*_-+=|{}[]:;'<>,.?/ 中的特殊符号）"
+      },
+      "MinLength": 8,
+      "MaxLength": 30,
+      "AssociationProperty": "ALIYUN::ECS::Instance::Password"
+    },
+    "DBMasterUserName": {
+      "Type": "String",
+      "Description": {
+        "en": "Primary account name of the database instance.",
+        "zh-cn": "数据库实例的主账号名称。"
+      },
+      "ConstraintDescription": {
+        "en": "Consist of 2 to 16 characters of lowercase letters, underline. Must begin with a letter and be end with an alphanumeric character",
+        "zh-cn": "由 2 到 16 个小写字母组成，下划线。必须以字母开头，以字母数字字符结尾"
+      },
+      "Label": {
+        "zh-cn": "数据库账号名称",
+        "en": "DB Username"
+      },
+      "Default": "aigcpostgres",
+      "MaxLength": 16,
+      "MinLength": 2
+    },
+    "DBMasterPassword": {
+      "NoEcho": true,
+      "Type": "String",
+      "Description": {
+        "en": "Server login password, Length 8-30, must contain three(Capital letters, lowercase letters, numbers, ()!@#$%&*-+= Special symbol in)",
+        "zh-cn": "数据库访问密码,长度8-30，必须包含三项（大小写字母、数字、 ()!@#$%&*-+=中的特殊符号）"
+      },
+      "Label": {
+        "en": "Instance Password",
+        "zh-cn": "数据库密码"
+      },
+      "ConstraintDescription": {
+        "en": "Length 8-30, must contain three(Capital letters, lowercase letters, numbers, ()!@#$%&*-+=Special symbol in)",
+        "zh-cn": "长度8-30，必须包含三项（大写字母、小写字母、数字、 ()!@#$%&*-+=中的特殊符号）"
+      },
+      "AllowedPattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[\\!\\@\\#\\$\\%\\&\\*\\(\\)\\+\\-\\=])([A-Za-z])[0-9A-Za-z\\!\\@\\#\\$\\%\\&\\*\\(\\)\\+\\-\\=]{7,29}$",
+      "MinLength": 8,
+      "MaxLength": 30,
+      "Default": "A@1leasechangeThis"
+    }
+  },
+  "Metadata": {
+    "ALIYUN::ROS::Interface": {
+      "ParameterGroups": [
+        {
+          "Parameters": [
+            "PayType",
+            "PayPeriodUnit",
+            "PayPeriod"
+          ],
+          "Label": {
+            "default": {
+              "en": "PayType Configuration",
+              "zh-cn": "付费类型配置"
+            }
+          }
+        },
+        {
+          "Parameters": [
+            "EcsInstanceType",
+            "InstancePassword",
+            "SourceCidrIp"
+          ],
+          "Label": {
+            "default": {
+              "en": "ECS配置",
+              "zh-cn": "ECS配置"
+            }
+          }
+        },
+        {
+          "Parameters": [
+            "ADBPGInstanceSpec",
+            "ADBPGSegmentStorage",
+            "DBMasterUserName",
+            "DBMasterPassword"
+          ],
+          "Label": {
+            "default": {
+              "en": "AnalyticDB PostgreSQL",
+              "zh-cn": "AnalyticDB PostgreSQL"
+            }
+          }
+        },
+       
+        {
+          "Parameters": [
+            "ZoneId"
+          ],
+          "Label": {
+            "default": {
+              "zh-cn": "可用区配置",
+              "en": "Zone Configuration"
+            }
+          }
+        },
+        {
+          "Parameters": [
+            "VpcCidrBlock",
+            "VSwitchCidrBlock"
+          ],
+          "Label": {
+            "default": {
+              "zh-cn": "选择网络配置",
+              "en": "Choose existing Infrastructure Configuration"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "Outputs": {
+    "Endpoint": {
+      "Description": {
+        "zh-cn": "对外暴露的公网IP地址",
+        "en": "Public IP Addresses"
+      },
+      "Value": {
+        "Fn::Sub": [
+          "http://${ServerAddress}:8080",
+          {
+            "ServerAddress": {
+              "Fn::Select": [
+                0,
+                {
+                  "Fn::GetAtt": [
+                    "EcsInstanceGroup",
+                    "PublicIps"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "PrivateEndpoint": {
+      "Description": {
+        "zh-cn": "内网IP地址",
+        "en": "Public IP Addresses"
+      },
+      "Value": {
+        "Fn::Sub": [
+          "http://${ServerAddress}:8080",
+          {
+            "ServerAddress": {
+              "Fn::Select": [
+                0,
+                {
+                  "Fn::GetAtt": [
+                    "EcsInstanceGroup",
+                    "PrivateIps"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "Resources": {
+    "EcsVpc": {
+      "Type": "ALIYUN::ECS::VPC",
+      "Properties": {
+        "VpcName": {
+          "Ref": "ALIYUN::StackName"
+        },
+        "CidrBlock": {
+          "Ref": "VpcCidrBlock"
+        }
+      }
+    },
+    "EcsVSwitch": {
+      "Type": "ALIYUN::ECS::VSwitch",
+      "Properties": {
+        "VSwitchName": {
+          "Ref": "ALIYUN::StackName"
+        },
+        "VpcId": {
+          "Ref": "EcsVpc"
+        },
+        "ZoneId": {
+          "Ref": "ZoneId"
+        },
+        "CidrBlock": {
+          "Ref": "VSwitchCidrBlock"
+        }
+      }
+    },
+    "EcsSecurityGroup": {
+      "Type": "ALIYUN::ECS::SecurityGroup",
+      "Properties": {
+        "SecurityGroupName": {
+          "Ref": "ALIYUN::StackName"
+        },
+        "VpcId": {
+          "Ref": "EcsVpc"
+        },
+        "SecurityGroupIngress": [
+          {
+            "PortRange": "8080/8080",
+            "Priority": 1,
+            "SourceCidrIp": {
+              "Ref": "SourceCidrIp"
+            },
+            "IpProtocol": "tcp",
+            "NicType": "internet"
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "PortRange": "-1/-1",
+            "Priority": 1,
+            "IpProtocol": "all",
+            "DestCidrIp": "0.0.0.0/0",
+            "NicType": "internet"
+          },
+          {
+            "PortRange": "-1/-1",
+            "Priority": 1,
+            "IpProtocol": "all",
+            "DestCidrIp": "0.0.0.0/0",
+            "NicType": "intranet"
+          }
+        ]
+      }
+    },
+    "WaitCondition": {
+      "Type": "ALIYUN::ROS::WaitCondition",
+      "Properties": {
+        "Count": 1,
+        "Handle": {
+          "Ref": "WaitConditionHandle"
+        },
+        "Timeout": 7200
+      },
+      "DependsOn": [
+        "GPDB",
+        "GPDBAccount"
+      ]
+    },
+    "WaitConditionHandle": {
+      "Type": "ALIYUN::ROS::WaitConditionHandle"
+    },
+    "EcsInstanceGroup": {
+      "Type": "ALIYUN::ECS::InstanceGroup",
+      "Properties": {
+        "InstanceName": {
+          "Fn::Join": [
+            "-",
+            [
+              {
+                "Ref": "ALIYUN::StackName"
+              },
+              "[1,4]"
+            ]
+          ]
+        },
+        "IoOptimized": "optimized",
+        "InstanceChargeType": {
+          "Ref": "PayType"
+        },
+        "PeriodUnit": {
+          "Ref": "PayPeriodUnit"
+        },
+        "Period": {
+          "Ref": "PayPeriod"
+        },
+        "VpcId": {
+          "Ref": "EcsVpc"
+        },
+        "ZoneId": {
+          "Ref": "ZoneId"
+        },
+        "VSwitchId": {
+          "Ref": "EcsVSwitch"
+        },
+        "SecurityGroupId": {
+          "Ref": "EcsSecurityGroup"
+        },
+        "SystemDiskCategory": "cloud_essd",
+        "SystemDiskSize": 500,
+        "MaxAmount": 1,
+        "ImageId": "m-t4n4bf0gpe5bfo5ciz06",
+        "InstanceType": {
+          "Ref": "EcsInstanceType"
+        },
+        "Password": {
+          "Ref": "InstancePassword"
+        },
+        "AllocatePublicIP": true,
+        "InternetMaxBandwidthOut": 20
+      }
+    },
+    "GPDB": {
+      "Type": "ALIYUN::GPDB::DBInstance",
+      "Properties": {
+        "MasterNodeNum": 1,
+        "SegNodeNum": 4,
+        "InstanceSpec": {
+          "Ref": "ADBPGInstanceSpec"
+        },
+        "VectorConfigurationStatus": true,
+        "EngineVersion": "6.0",
+        "ZoneId": {
+          "Ref": "ZoneId"
+        },
+        "VPCId": {
+          "Ref": "EcsVpc"
+        },
+        "PayType": {
+          "Ref": "PayType"
+        },
+        "VSwitchId": {
+          "Ref": "EcsVSwitch"
+        },
+        "Period": {
+          "Ref": "PayPeriod"
+        },
+        "PeriodUnit": {
+          "Ref": "PayPeriodUnit"
+        },
+        "DBInstanceCategory": "Basic",
+        "SegStorageType": "cloud_essd",
+        "StorageSize": {
+          "Ref": "ADBPGSegmentStorage"
+        },
+        "DBInstanceMode": "StorageElastic",
+        "SecurityIPList": {
+          "Ref": "VpcCidrBlock"
+        }
+      }
+    },
+    "GPDBAccount": {
+      "Type": "ALIYUN::GPDB::Account",
+      "Properties": {
+        "DBInstanceId": {
+          "Fn::GetAtt": [
+            "GPDB",
+            "DBInstanceId"
+          ]
+        },
+        "AccountPassword": {
+          "Ref": "DBMasterPassword"
+        },
+        "AccountName": {
+          "Ref": "DBMasterUserName"
+        }
+      }
+    },
+    "InstanceRunCommand": {
+      "Type": "ALIYUN::ECS::RunCommand",
+      "DependsOn": [
+        "GPDBAccount",
+        "GPDB"
+      ],
+      "Properties": {
+        "Sync": true,
+        "CommandContent": {
+          "Fn::Sub": [
+            "#!/bin/bash\n 
+            rm -rf /etc/environmentadb \n
+            cat >> /etc/environmentadb << \"EOF\" \n
+            PG_HOST=${DBConnectString} \n
+            PG_PORT=5432 \n
+            PG_DATABASE=${DBMasterUserName} \n
+            PG_USER=${DBMasterUserName} \n
+            PG_PASSWORD=\"${DBMasterPassword}\"\n
+            \n
+
+            apt update && apt install git -y && apt install unzip -y && apt install docker-compose -y && apt install postgresql -y  \n
+
+            git clone https://github.com/daviddhc20120601/chat-with-pdf.git && cd chat-with-pdf/ \n
+
+            cp .devops/Dockerfile . && docker build . -t haidonggpt/front:1.0   && docker run -d -e /etc/environmentadb -p 8501:8501 haidonggpt/front:1.0  \n
+            ",
+            {
+              "DBMasterUsername": {
+                "Ref": "DBMasterUserName"
+              },
+              "DBMasterPassword": {
+                "Ref": "DBMasterPassword"
+              },
+              "DBConnectString": {
+                "Fn::GetAtt": [
+                  "GPDB",
+                  "ConnectionString"
+                ]
+              },
+              "CurlCli": {
+                "Fn::GetAtt": [
+                  "WaitConditionHandle",
+                  "CurlCli"
+                ]
+              }
+            }
+          ]
+        },
+        "Type": "RunShellScript",
+        "InstanceIds": {
+          "Fn::GetAtt": [
+            "EcsInstanceGroup",
+            "InstanceIds"
+          ]
+        },
+        "Timeout": "3600"
+      }
+    }
+  }
+}
